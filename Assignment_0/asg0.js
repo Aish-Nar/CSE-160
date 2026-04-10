@@ -42,13 +42,15 @@ function drawVector(v, color) {
   ctx.stroke();
 }
 
-function handleDrawEvent() {
+function clearCanvas() {
   var canvas = document.getElementById('example');
   var ctx = canvas.getContext('2d');
-
-  // Clear canvas
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function handleDrawEvent() {
+  clearCanvas();
 
   // Read v1 inputs
   var v1x = parseFloat(document.getElementById('v1x').value);
@@ -65,4 +67,54 @@ function handleDrawEvent() {
   // Draw both
   drawVector(v1, 'red');
   drawVector(v2, 'blue');
+}
+
+function handleDrawOperationEvent() {
+  clearCanvas();
+
+  // Read v1 inputs
+  var v1x = parseFloat(document.getElementById('v1x').value);
+  var v1y = parseFloat(document.getElementById('v1y').value);
+
+  // Read v2 inputs
+  var v2x = parseFloat(document.getElementById('v2x').value);
+  var v2y = parseFloat(document.getElementById('v2y').value);
+  
+  // Operation
+  var operation = document.getElementById('operation').value;
+  var scalar = parseFloat(document.getElementById('scalar').value);
+  // Create vectors
+  var v1 = new Vector3([v1x, v1y, 0]);
+  var v2 = new Vector3([v2x, v2y, 0]);
+
+  // Draw both
+  drawVector(v1, 'red');
+  drawVector(v2, 'blue');
+
+  if (operation === 'add') {
+    var v3 = new Vector3([v1.elements[0], v1.elements[1], v1.elements[2]]);
+    v3.add(v2);
+    drawVector(v3, 'green');
+  } 
+  else if (operation === 'sub') {
+    var v3 = new Vector3([v1.elements[0], v1.elements[1], v1.elements[2]]);
+    v3.sub(v2);
+    drawVector(v3, 'green');
+  } 
+  else if (operation === 'mul') {
+    var v3 = new Vector3([v1.elements[0], v1.elements[1], v1.elements[2]]);
+    var v4 = new Vector3([v2.elements[0], v2.elements[1], v2.elements[2]]);
+    v3.mul(scalar);
+    v4.mul(scalar);
+    drawVector(v3, 'green');
+    drawVector(v4, 'green');
+  } 
+  else if (operation === 'div') {
+    var v3 = new Vector3([v1.elements[0], v1.elements[1], v1.elements[2]]);
+    var v4 = new Vector3([v2.elements[0], v2.elements[1], v2.elements[2]]);
+    v3.div(scalar);
+    v4.div(scalar);
+    drawVector(v3, 'green');
+    drawVector(v4, 'green');
+  }
 }
