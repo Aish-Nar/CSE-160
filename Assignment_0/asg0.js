@@ -132,6 +132,9 @@ function handleDrawOperationEvent() {
   else if (operation === 'angle') {
   console.log("Angle:", angleBetween(v1, v2));
   }
+  else if (operation === 'area') {
+  console.log("Area of the triangle:", areaTriangle(v1, v2));
+  }
 
 
   function angleBetween(v1, v2) {
@@ -153,5 +156,11 @@ function handleDrawOperationEvent() {
   let angleDegrees = angleRadians * 180 / Math.PI;
 
   return angleDegrees;
+}
+function areaTriangle(v1, v2) {
+  let cross = Vector3.cross(v1, v2);
+  let areaParallelogram = cross.magnitude();
+  let areaTriangle = areaParallelogram / 2;
+  return areaTriangle;
 }
 }
