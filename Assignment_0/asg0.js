@@ -129,6 +129,11 @@ function handleDrawOperationEvent() {
     drawVector(v3, 'green');
     drawVector(v4, 'green');
   }
+  else if (operation === 'angle') {
+  console.log("Angle:", angleBetween(v1, v2));
+  }
+
+
   function angleBetween(v1, v2) {
   let dot = Vector3.dot(v1, v2);
   let mag1 = v1.magnitude();
