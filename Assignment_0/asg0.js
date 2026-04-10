@@ -1,7 +1,7 @@
 // DrawRectanlge.js
 function main() {
  // Retrieve the <canvas> element 
- var canvas = document.getElementByld('example');
+ var canvas = document.getElementById('example');
  if (!canvas) {
    Console.log('Failed to retrieve the <canvas> element ');
    return False;
@@ -129,4 +129,24 @@ function handleDrawOperationEvent() {
     drawVector(v3, 'green');
     drawVector(v4, 'green');
   }
+  function angleBetween(v1, v2) {
+  let dot = Vector3.dot(v1, v2);
+  let mag1 = v1.magnitude();
+  let mag2 = v2.magnitude();
+
+  if (mag1 === 0 || mag2 === 0) {
+    return 0;
+  }
+
+  let cosAlpha = dot / (mag1 * mag2);
+
+  // Clamp to avoid floating point issues
+  if (cosAlpha > 1) cosAlpha = 1;
+  if (cosAlpha < -1) cosAlpha = -1;
+
+  let angleRadians = Math.acos(cosAlpha);
+  let angleDegrees = angleRadians * 180 / Math.PI;
+
+  return angleDegrees;
+}
 }
