@@ -117,4 +117,16 @@ function handleDrawOperationEvent() {
     drawVector(v3, 'green');
     drawVector(v4, 'green');
   }
+  else if (operation === 'magnitude') {
+    console.log("Magnitude v1:", v1.magnitude());
+    console.log("Magnitude v2:", v2.magnitude());
+  }
+  else if (operation === 'normalize') {
+    var v3 = new Vector3([v1.elements[0], v1.elements[1], v1.elements[2]]);
+    var v4 = new Vector3([v2.elements[0], v2.elements[1], v2.elements[2]]);
+    v3.normalize();
+    v4.normalize();
+    drawVector(v3, 'green');
+    drawVector(v4, 'green');
+  }
 }
