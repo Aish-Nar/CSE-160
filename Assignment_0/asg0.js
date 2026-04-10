@@ -15,9 +15,12 @@ function main() {
 
  // Create v1 = (2.25, 2.25, 0)
  var v1 = new Vector3([2.25, 2.25, 0]);
+ var v2 = new Vector3([1, 1, 0]); 
 
  // Draw v1 in red
  drawVector(v1, 'red');
+ // Draw v2 in blue
+ drawVector(v2, 'blue');
 }
 
 function drawVector(v, color) {
@@ -47,13 +50,19 @@ function handleDrawEvent() {
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Read input values
-  var x = parseFloat(document.getElementById('v1x').value);
-  var y = parseFloat(document.getElementById('v1y').value);
+  // Read v1 inputs
+  var v1x = parseFloat(document.getElementById('v1x').value);
+  var v1y = parseFloat(document.getElementById('v1y').value);
 
-  // Create v1
-  var v1 = new Vector3([x, y, 0]);
+  // Read v2 inputs
+  var v2x = parseFloat(document.getElementById('v2x').value);
+  var v2y = parseFloat(document.getElementById('v2y').value);
 
-  // Draw v1 in red
+  // Create vectors
+  var v1 = new Vector3([v1x, v1y, 0]);
+  var v2 = new Vector3([v2x, v2y, 0]);
+
+  // Draw both
   drawVector(v1, 'red');
+  drawVector(v2, 'blue');
 }
