@@ -29,6 +29,7 @@ let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selectedSize = 5;
 let g_selectedType = 0;      // 0 = point, 1 = triangle, 2 = circle
 let g_selectedSegments = 10;
+let g_rainbowMode = false;
 
 
 var g_shapesList = [];
@@ -81,7 +82,6 @@ function addActionsForHtmlUI() {
     g_selectedColor = [1.0, 0.0, 0.0, 1.0];
   };
 
-
   // shape buttons
   document.getElementById('pointButton').onclick = function() {
     g_selectedType = 0;
@@ -95,15 +95,11 @@ function addActionsForHtmlUI() {
     g_selectedType = 2;
   };
 
-
-
   // clear button
   document.getElementById('clearButton').onclick = function() {
     g_shapesList = [];
     renderAllShapes();
   };
-
-
   // RGB sliders
   document.getElementById('redSlide').addEventListener('mouseup', function() {
     g_selectedColor[0] = this.value / 100;
@@ -117,7 +113,6 @@ function addActionsForHtmlUI() {
     g_selectedColor[2] = this.value / 100;
   });
 
-
   // size slider
   document.getElementById('sizeSlide').addEventListener('mouseup', function() {
     g_selectedSize = Number(this.value);
@@ -126,6 +121,15 @@ function addActionsForHtmlUI() {
   document.getElementById('segmentSlide').addEventListener('mouseup', function() {
     g_selectedSegments = Number(this.value);
   });
+  //rainbow text 
+  document.getElementById('rainbowButton').onclick = function() {
+   g_rainbowMode = !g_rainbowMode;
+   this.innerText = g_rainbowMode ? "Rainbow Mode: ON" : "Rainbow Mode"; 
+  };
+
+  document.getElementById('drawPictureButton').onclick = function() {
+  drawMyPicture();
+  };  
 }
 
 function main() {
@@ -159,7 +163,11 @@ function click(ev) {
   }
 
   point.position = [x, y];
-  point.color = g_selectedColor.slice();
+  if (g_rainbowMode) {
+    point.color = [Math.random(), Math.random(), Math.random(), 1.0];
+  } else {
+    point.color = g_selectedColor.slice();
+  }
   point.size = g_selectedSize;
 
   g_shapesList.push(point);
@@ -198,7 +206,31 @@ function renderAllShapes() {
     "numdot"
   );
 }
+//Draw the Picture I sketched
+function drawMyPicture() {
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  // FOX A 
+  gl.uniform4f(u_FragColor, 0.95, 0.58, 0.20, 1.0);
+  drawTriangle([-0.78, -0.55, -0.58, 0.35, -0.42, -0.55]);
+  drawTriangle([-0.42, -0.55, -0.26, 0.35, -0.06, -0.55]);
+  drawTriangle([-0.58, -0.22, -0.26, -0.22, -0.42, -0.08]);
 
+  // BUNNY N
+  gl.uniform4f(u_FragColor, 0.72, 0.72, 0.76, 1.0);
+  drawTriangle([0.20, 0.25, 0.42, 0.25, 0.20, -0.55]);
+  drawTriangle([0.42, 0.25, 0.42, -0.55, 0.20, -0.55]);
+  drawTriangle([0.58, 0.25, 0.80, 0.25, 0.58, -0.55]);
+  drawTriangle([0.80, 0.25, 0.80, -0.55, 0.58, -0.55]);
+  gl.uniform4f(u_FragColor, 0.58, 0.58, 0.62, 1.0);
+  drawTriangle([0.42, 0.25, 0.58, 0.25, 0.58, -0.08]);
+  gl.uniform4f(u_FragColor, 0.72, 0.72, 0.76, 1.0);
+  drawTriangle([0.24, 0.25, 0.30, 0.48, 0.38, 0.25]);
+  drawTriangle([0.62, 0.25, 0.70, 0.48, 0.78, 0.25]);
+  gl.uniform4f(u_FragColor, 0.96, 0.60, 0.82, 1.0);
+  drawTriangle([0.27, 0.25, 0.30, 0.40, 0.35, 0.25]);
+  drawTriangle([0.66, 0.25, 0.70, 0.40, 0.75, 0.25]);
+  drawTriangle([0.48, 0.02, 0.52, 0.08, 0.56, 0.02]);
+}
 // Set the text of a HTML element
 function sendTextToHTML(text, htmlID) {
   var htmlElm = document.getElementById(htmlID);

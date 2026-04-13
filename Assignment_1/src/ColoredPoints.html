@@ -10,7 +10,7 @@
       Please use a browser that supports "canvas"
     </canvas>
 
-    <p id="numdot">XXX</p>
+    <p id="numdot">Painting</p>
 
     <button type="button" id="green">Green</button>
     <button type="button" id="red">Red</button>
@@ -21,6 +21,13 @@
 
     <button type="button" id="clearButton">Clear</button>
 
+    <button type="button" id="drawPictureButton">Draw My Picture</button>
+    <button type="button" id="rainbowButton">Rainbow Mode</button>
+
+    <p>Reference sketch:</p>
+    <img src="Assignment_1_sketch.png" alt="Reference sketch" width="400">
+
+
     <p>
       Red <input type="range" min="0" max="100" value="100" class="slider" id="redSlide">
     </p>
@@ -30,14 +37,13 @@
     <p>
       Blue <input type="range" min="0" max="100" value="100" class="slider" id="blueSlide">
     </p>
-
     <p>
       Size <input type="range" min="5" max="40" value="5" class="slider" id="sizeSlide">
     </p>
-
     <p>
       Segments <input type="range" min="3" max="30" value="10" class="slider" id="segmentSlide">
     </p>
+
 
     <script src="../lib/webgl-utils.js"></script>
     <script src="../lib/webgl-debug.js"></script>
