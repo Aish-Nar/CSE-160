@@ -32,10 +32,11 @@ let u_ModelMatrix;
 let u_GlobalRotation;
 let u_FragColor;
 
-let g_globalAngle = 0;
-let g_upperLegAngle = 0;
-let g_lowerLegAngle = 0;
-let g_animation = false;
+var g_globalAngle = 0;
+var g_upperLegAngle = 0;
+var g_lowerLegAngle = 0;
+var g_animation = false;
+var g_autoRotateAngle = 0; 
 let g_seconds = 0;
 let g_startTime = performance.now() / 1000;
 
@@ -147,8 +148,9 @@ function tick() {
 
 function updateAnimationAngles() {
   if (g_animation) {
-    g_upperLegAngle = 25 * Math.sin(g_seconds * 3);
-    g_lowerLegAngle = 25 * Math.sin(g_seconds * 3 + 1.5);
+    g_autoRotateAngle = (g_seconds * 45) % 360; // rotates whole tiger
+    g_upperLegAngle = 25 * Math.sin(g_seconds * 4);
+    g_lowerLegAngle = 20 * Math.sin(g_seconds * 4 + 1.5);
   }
 }
 
@@ -180,8 +182,12 @@ function drawCube(matrix, color) {
 function renderScene() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+  let test = new Matrix4();
+  test.scale(0.3, 0.3, 0.3);
+  drawCube(test, [1, 0, 0, 1]);
+
   let globalRotMat = new Matrix4();
-  globalRotMat.rotate(g_globalAngle, 0, 1, 0);
+  globalRotMat.setRotate(g_globalAngle + g_autoRotateAngle, 0, 1, 0);
   gl.uniformMatrix4fv(u_GlobalRotation, false, globalRotMat.elements);
 
   const orange = [1.0, 0.45, 0.05, 1.0];
@@ -195,14 +201,14 @@ function renderScene() {
 
   let body = new Matrix4();
   body.translate(0, 0, 0);
-  body.scale(1.2, 0.45, 0.55);
+  body.scale(0.6, 0.25, 0.3);
   drawCube(body, orange);
 
   // Body stripes
-  drawStripe(-0.35, 0.24, 0.29);
-  drawStripe(0.0, 0.24, 0.29);
-  drawStripe(0.35, 0.24, 0.29);
-
+  drawStripe(-0.45, 0.08, 0.31);
+  drawStripe(-0.2, 0.08, 0.31);
+  drawStripe(0.05, 0.08, 0.31);
+  drawStripe(0.3, 0.08, 0.31);
   // =======================
   // Head
   // =======================
@@ -246,6 +252,24 @@ function renderScene() {
   eye2.scale(0.05, 0.05, 0.05);
   drawCube(eye2, green);
 
+  // Face stripes
+let faceStripe1 = new Matrix4();
+faceStripe1.translate(0.98, 0.36, 0.23);
+faceStripe1.rotate(25, 0, 0, 1);
+faceStripe1.scale(0.04, 0.18, 0.03);
+drawCube(faceStripe1, black);
+
+let faceStripe2 = new Matrix4();
+faceStripe2.translate(0.98, 0.36, -0.23);
+faceStripe2.rotate(-25, 0, 0, 1);
+faceStripe2.scale(0.04, 0.18, 0.03);
+drawCube(faceStripe2, black);
+
+let foreheadStripe = new Matrix4();
+foreheadStripe.translate(0.98, 0.48, 0);
+foreheadStripe.scale(0.06, 0.16, 0.04);
+drawCube(foreheadStripe, black);
+
   // =======================
   // Legs with hierarchy
   // =======================
@@ -276,6 +300,16 @@ function renderScene() {
   tail3.rotate(65 + 20 * Math.sin(g_seconds * 2), 0, 0, 1);
   tail3.scale(0.28, 0.07, 0.07);
   drawCube(tail3, black);
+
+  let tailStripe1 = new Matrix4();
+tailStripe1.translate(-0.85, 0.15, 0);
+tailStripe1.scale(0.05, 0.11, 0.11);
+drawCube(tailStripe1, black);
+
+let tailStripe2 = new Matrix4();
+tailStripe2.translate(-1.08, 0.27, 0);
+tailStripe2.scale(0.05, 0.1, 0.1);
+drawCube(tailStripe2, black);
 }
 
 // =======================
@@ -313,15 +347,17 @@ function drawLeg(x, y, z, frontLeg) {
 function drawStripe(x, y, z) {
   const black = [0.02, 0.02, 0.02, 1.0];
 
-  let stripe = new Matrix4();
-  stripe.translate(x, y, z);
-  stripe.rotate(25, 0, 0, 1);
-  stripe.scale(0.08, 0.32, 0.03);
-  drawCube(stripe, black);
+  // right side stripe
+  let stripeRight = new Matrix4();
+  stripeRight.translate(x, y, z);
+  stripeRight.rotate(18, 0, 0, 1);
+  stripeRight.scale(0.045, 0.28, 0.025);
+  drawCube(stripeRight, black);
 
-  let stripeBack = new Matrix4();
-  stripeBack.translate(x, y, -z);
-  stripeBack.rotate(-25, 0, 0, 1);
-  stripeBack.scale(0.08, 0.32, 0.03);
-  drawCube(stripeBack, black);
+  // left side stripe
+  let stripeLeft = new Matrix4();
+  stripeLeft.translate(x, y, -z);
+  stripeLeft.rotate(-18, 0, 0, 1);
+  stripeLeft.scale(0.045, 0.28, 0.025);
+  drawCube(stripeLeft, black);
 }
