@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ASG 2 Tiger</title>
+
+    <script src="lib/cuon-matrix-cse160.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+
+    <!-- IMPORTANT: match where your asg2.js actually is -->
+    <script src="src/asg2.js"></script>
+  </head>
+
+  <body onload="main()">
+    <canvas id="webgl" width="500" height="500">
+      Please use a browser that supports canvas.
+    </canvas>
+
+    <br />
+
+    <p>
+      Global Rotation
+      <input type="range" min="-180" max="180" value="0" id="globalRotationSlide" />
+    </p>
+
+    <p>
+      Front Leg Upper Joint
+      <input type="range" min="-45" max="45" value="0" id="upperLegSlide" />
+    </p>
+
+    <p>
+      Front Leg Lower Joint
+      <input type="range" min="-45" max="45" value="0" id="lowerLegSlide" />
+    </p>
+
+    <button onclick="g_animation = !g_animation">Toggle Animation</button>
+
+    <p id="fps">FPS:</p>
+  </body>
+</html>
