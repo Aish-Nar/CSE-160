@@ -1,7 +1,9 @@
 //asg2 
-// =======================
+
+
+// 
 // Shaders
-// =======================
+// 
 
 var VERTEX_SHADER = `
 precision mediump float;
@@ -215,32 +217,27 @@ function renderScene() {
   body.setScale(0.75, 0.28, 0.32);
   drawCube(body, orange);
 
-  // BODY STRIPES
   drawBodyStripe(body, -0.45);
   drawBodyStripe(body, -0.25);
   drawBodyStripe(body, 0.0);
   drawBodyStripe(body, 0.25);
   drawBodyStripe(body, 0.45);
 
-  // HEAD
   let head = new Matrix4();
   head.setTranslate(0.82, 0.18, 0);
   head.scale(0.32, 0.28, 0.28);
   drawCube(head, orange);
 
-  // SNOUT
   let snout = new Matrix4();
   snout.setTranslate(1.08, 0.12, 0);
   snout.scale(0.22, 0.15, 0.22);
   drawCube(snout, white);
 
-  // NOSE
   let nose = new Matrix4();
   nose.setTranslate(1.22, 0.14, 0);
   nose.scale(0.06, 0.05, 0.08);
   drawCube(nose, black);
 
-  // EYES
   let eye1 = new Matrix4();
   eye1.setTranslate(1.01, 0.25, 0.12);
   eye1.scale(0.045, 0.045, 0.045);
@@ -264,18 +261,15 @@ function renderScene() {
   ear2.scale(0.18, 0.18, 0.18);
   drawTriangle(ear2, black);
 
-  // HEAD STRIPES
   drawHeadStripe(0.78, 0.32, 0.18, 20);
   drawHeadStripe(0.78, 0.32, -0.18, -20);
   drawHeadStripe(0.94, 0.35, 0.0, 0);
 
-  // LEGS
   drawLeg(0.42, -0.32, 0.22, true);
   drawLeg(0.42, -0.32, -0.22, true);
   drawLeg(-0.42, -0.32, 0.22, false);
   drawLeg(-0.42, -0.32, -0.22, false);
 
-  // ONE TAIL WITH BLACK TIP
   let tail = new Matrix4();
   tail.setTranslate(-0.82, 0.08, 0);
   tail.rotate(10 + g_tailAngle, 0, 0, 1);
@@ -294,7 +288,7 @@ function renderScene() {
   tailTip.scale(0.16, 0.05, 0.05);
   drawCube(tailTip, black);
 
-  // POKE ANIMATION: red exclamation mark above tiger
+  
   if (g_poke) {
     let poke = new Matrix4();
     poke.setTranslate(0.2, 0.75, 0);
@@ -347,8 +341,6 @@ function drawLeg(x, y, z, frontLeg) {
   upper.rotate(swing, 0, 0, 1);
   upper.scale(0.13, 0.32, 0.13);
   drawCube(upper, orange);
-
-  // upper leg stripe
   let upperStripe = new Matrix4();
   upperStripe.setTranslate(x, y + 0.03, z);
   upperStripe.rotate(swing, 0, 0, 1);
@@ -361,15 +353,12 @@ function drawLeg(x, y, z, frontLeg) {
   lower.rotate(bend, 0, 0, 1);
   lower.scale(0.11, 0.3, 0.11);
   drawCube(lower, orange);
-
-  // lower leg stripe
   let lowerStripe = new Matrix4();
   lowerStripe.setTranslate(x, y - 0.35, z);
   lowerStripe.rotate(bend, 0, 0, 1);
   lowerStripe.scale(0.12, 0.035, 0.12);
   drawCube(lowerStripe, black);
-
-  // paw = third part of chain
+  // paw 
   let paw = new Matrix4();
   paw.setTranslate(x + 0.03, y - 0.63, z);
   paw.scale(0.18, 0.08, 0.16);
