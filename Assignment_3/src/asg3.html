@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>ASG 3</title>
+    <title>ASG 3 - The Dungeon Escape</title>
 
     <script src="../lib/cuon-matrix-cse160.js"></script>
     <script src="../lib/cuon-utils.js"></script>
@@ -18,23 +18,78 @@
     <script src="asg3.js"></script>
 
     <style>
-      body   { margin: 0; background: #111; color: #eee; font-family: sans-serif; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { background: #111; color: #eee; font-family: sans-serif; }
       canvas { display: block; }
-      #controls { padding: 8px 12px; font-size: 14px; }
+
+      #hud {
+        position: fixed;
+        top: 10px; left: 10px;
+        font-size: 15px;
+        text-shadow: 1px 1px 3px black;
+        pointer-events: none;
+        line-height: 1.7;
+      }
+
+      #crosshair {
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 22px;
+        pointer-events: none;
+        text-shadow: 0 0 4px black;
+      }
+
+      #gameOverlay {
+        display: none;
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0,0,0,0.88);
+        padding: 32px 48px;
+        text-align: center;
+        border: 3px solid gold;
+        border-radius: 12px;
+        z-index: 100;
+      }
+      #overlayTitle { font-size: 30px; font-weight: bold; margin-bottom: 10px; }
+      #overlayMsg   { font-size: 16px; margin-bottom: 16px; color: #ccc; }
+      #overlayHint  { font-size: 13px; color: #888; }
+
+      #controls {
+        padding: 8px 12px;
+        font-size: 13px;
+        border-top: 1px solid #333;
+      }
     </style>
   </head>
 
   <body onload="main()">
-    <canvas id="webgl" width="800" height="600">
-      Please use a browser that supports "canvas"
-    </canvas>
+    <canvas id="webgl" width="800" height="600"></canvas>
+
+    <div id="crosshair">+</div>
+
+    <div id="hud">
+      <div id="hudGolem">🔴 Golem: far away</div>
+      <div id="hudGoal">🟡 Find the golden treasure!</div>
+    </div>
+
+    <div id="gameOverlay">
+      <div id="overlayTitle"></div>
+      <div id="overlayMsg"></div>
+      <div id="overlayHint">Press R to play again</div>
+    </div>
+
     <div id="controls">
+      <b>The Dungeon Escape</b> &mdash; Find the gold treasure before the red golem catches you! &nbsp;|&nbsp;
       W/S: forward/back &nbsp;|&nbsp;
       A/D: strafe left/right &nbsp;|&nbsp;
       Q/E: rotate left/right &nbsp;|&nbsp;
       Click + drag: mouse look &nbsp;|&nbsp;
       Left click: add block &nbsp;|&nbsp;
-      Right click: delete block
+      Right click: delete block &nbsp;|&nbsp;
+      R: restart
     </div>
   </body>
 </html>
