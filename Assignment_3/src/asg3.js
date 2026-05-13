@@ -78,10 +78,8 @@ var wallBuffer, groundBuffer, skyBuffer;
 var wallVertexCount, groundVertexCount, skyVertexCount;
 var textureReady = false;
 
-// Track whether a left-button press became a drag so we don't
-// accidentally add a block at the end of a mouse-look movement.
-var g_mouseDownX = 0;
-var g_mouseDownY = 0;
+var g_mouseDownX  = 0;
+var g_mouseDownY  = 0;
 var g_wasDragging = false;
 
 function applyTransform(src, tx, ty, tz, sx, sy, sz) {
@@ -187,7 +185,6 @@ function loadTexture() {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
         gl.uniform1i(gl.getUniformLocation(gl.program, "u_Sampler"), 0);
         textureReady = true;
-        console.log("Texture loaded OK.");
     };
     img.onerror = function () {
         console.log("Texture load failed - using fallback colors.");
@@ -202,7 +199,6 @@ function rebuildWalls() {
     gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
 }
 
-// Returns the map cell directly in front of the camera (2 units ahead)
 function getBlockInFront() {
     var fx = camera.center.elements[0] - camera.eye.elements[0];
     var fz = camera.center.elements[2] - camera.eye.elements[2];
@@ -210,13 +206,9 @@ function getBlockInFront() {
     if (len === 0) return null;
     fx /= len;
     fz /= len;
-
     var bx = Math.round(camera.eye.elements[0] + fx * 2);
     var bz = Math.round(camera.eye.elements[2] + fz * 2);
-
-    if (bx >= 0 && bx < 32 && bz >= 0 && bz < 32) {
-        return { x: bx, z: bz };
-    }
+    if (bx >= 0 && bx < 32 && bz >= 0 && bz < 32) return { x: bx, z: bz };
     return null;
 }
 
@@ -225,7 +217,6 @@ function addBlockInFront() {
     if (b && g_map[b.z][b.x] < 4) {
         g_map[b.z][b.x]++;
         rebuildWalls();
-        console.log("Added block at x=" + b.x + " z=" + b.z + " height=" + g_map[b.z][b.x]);
     }
 }
 
@@ -234,40 +225,37 @@ function deleteBlockInFront() {
     if (b && g_map[b.z][b.x] > 0) {
         g_map[b.z][b.x]--;
         rebuildWalls();
-        console.log("Deleted block at x=" + b.x + " z=" + b.z + " height=" + g_map[b.z][b.x]);
     }
 }
 
 function keydown(ev) {
     switch (ev.key) {
-        case 'w': case 'W': camera.moveForward();    break;
-        case 's': case 'S': camera.moveBackwards();  break;
-        case 'a': case 'A': camera.moveLeft();       break;
-        case 'd': case 'D': camera.moveRight();      break;
-        case 'q': case 'Q': camera.panLeft();        break;
-        case 'e': case 'E': camera.panRight();       break;
-        // F = add block in front, G = delete block in front
-        case 'f': case 'F': addBlockInFront();       break;
-        case 'g': case 'G': deleteBlockInFront();    break;
+        case 'w': case 'W': camera.moveForward();   break;
+        case 's': case 'S': camera.moveBackwards(); break;
+        case 'a': case 'A': camera.moveLeft();      break;
+        case 'd': case 'D': camera.moveRight();     break;
+        case 'q': case 'Q': camera.panLeft();       break;
+        case 'e': case 'E': camera.panRight();      break;
     }
 }
 
 function setupMouseControls(canvas) {
-    // Record where the mouse went down so we can tell click from drag
     canvas.onmousedown = function (ev) {
+        if (ev.button === 2) {
+            // Right button: delete immediately on press
+            deleteBlockInFront();
+            return;
+        }
+        // Left button: record position to distinguish click from drag
         g_mouseDownX  = ev.clientX;
         g_mouseDownY  = ev.clientY;
         g_wasDragging = false;
     };
 
     canvas.onmousemove = function (ev) {
-        if (ev.buttons !== 1) return;   // only when left button is held
-
-        // If the mouse has moved more than 4px it's a drag, not a click
-        var movedX = Math.abs(ev.clientX - g_mouseDownX);
-        var movedY = Math.abs(ev.clientY - g_mouseDownY);
-        if (movedX + movedY > 4) g_wasDragging = true;
-
+        if (ev.buttons !== 1) return;
+        var moved = Math.abs(ev.clientX - g_mouseDownX) + Math.abs(ev.clientY - g_mouseDownY);
+        if (moved > 4) g_wasDragging = true;
         if (g_wasDragging) {
             var dx = ev.movementX;
             if      (dx > 0) camera.panRight(dx * 0.3);
@@ -275,18 +263,15 @@ function setupMouseControls(canvas) {
         }
     };
 
-    // Left click: only add a block when it was a real click, not the end of a drag
+    // Left click: add block only if the mouse didn't drag
     canvas.onclick = function () {
-        if (!g_wasDragging) {
-            addBlockInFront();
-        }
+        if (!g_wasDragging) addBlockInFront();
         g_wasDragging = false;
     };
 
-    // Right click: delete block in front
+    // Suppress the browser's own right-click context menu
     canvas.oncontextmenu = function (ev) {
         ev.preventDefault();
-        deleteBlockInFront();
     };
 }
 
