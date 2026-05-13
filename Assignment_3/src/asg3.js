@@ -36,7 +36,6 @@ var FRAGMENT_SHADER = `
     }
 `;
 
-// 32x32 map  (0 = open, 1-4 = wall height in blocks)
 var g_map = [
     [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
     [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
@@ -217,6 +216,7 @@ function addBlockInFront() {
     if (b && g_map[b.z][b.x] < 4) {
         g_map[b.z][b.x]++;
         rebuildWalls();
+        console.log("Added block at x=" + b.x + " z=" + b.z);
     }
 }
 
@@ -225,6 +225,7 @@ function deleteBlockInFront() {
     if (b && g_map[b.z][b.x] > 0) {
         g_map[b.z][b.x]--;
         rebuildWalls();
+        console.log("Deleted block at x=" + b.x + " z=" + b.z);
     }
 }
 
@@ -240,19 +241,16 @@ function keydown(ev) {
 }
 
 function setupMouseControls(canvas) {
-    canvas.onmousedown = function (ev) {
-        if (ev.button === 2) {
-            // Right button: delete immediately on press
-            deleteBlockInFront();
-            return;
+    // Track left-button drag vs click
+    canvas.addEventListener('mousedown', function (ev) {
+        if (ev.button === 0) {
+            g_mouseDownX  = ev.clientX;
+            g_mouseDownY  = ev.clientY;
+            g_wasDragging = false;
         }
-        // Left button: record position to distinguish click from drag
-        g_mouseDownX  = ev.clientX;
-        g_mouseDownY  = ev.clientY;
-        g_wasDragging = false;
-    };
+    });
 
-    canvas.onmousemove = function (ev) {
+    canvas.addEventListener('mousemove', function (ev) {
         if (ev.buttons !== 1) return;
         var moved = Math.abs(ev.clientX - g_mouseDownX) + Math.abs(ev.clientY - g_mouseDownY);
         if (moved > 4) g_wasDragging = true;
@@ -261,18 +259,25 @@ function setupMouseControls(canvas) {
             if      (dx > 0) camera.panRight(dx * 0.3);
             else if (dx < 0) camera.panLeft(-dx * 0.3);
         }
-    };
+    });
 
-    // Left click: add block only if the mouse didn't drag
-    canvas.onclick = function () {
+    // Left click only (ev.button===0 guard stops right-click from also firing this)
+    canvas.addEventListener('click', function (ev) {
+        if (ev.button !== 0) return;
         if (!g_wasDragging) addBlockInFront();
         g_wasDragging = false;
-    };
+    });
 
-    // Suppress the browser's own right-click context menu
-    canvas.oncontextmenu = function (ev) {
+    // Right click delete: use mouseup button===2, more reliable than contextmenu in iframes
+    canvas.addEventListener('mouseup', function (ev) {
+        if (ev.button === 2) deleteBlockInFront();
+    });
+
+    // Suppress the browser context menu popup so it doesn't appear on right-click
+    canvas.addEventListener('contextmenu', function (ev) {
         ev.preventDefault();
-    };
+        return false;
+    });
 }
 
 function main() {
@@ -303,7 +308,7 @@ function main() {
 
     camera = new Camera(canvas.width / canvas.height, 0.1, 1000);
 
-    document.onkeydown = keydown;
+    document.addEventListener('keydown', keydown);
     setupMouseControls(canvas);
 
     animate();
