@@ -1,4 +1,4 @@
-class Camera {
+ class Camera {
     constructor(aspectRatio, near, far) {
         this.fov = 60;
         this.eye    = new Vector3([4, 0.5, 4]);
@@ -12,65 +12,65 @@ class Camera {
         this.projectionMatrix.setPerspective(this.fov, aspectRatio, near, far);
     }
 
+    // Move forward/backward purely in the XZ plane (no flying up or down)
     moveForward(speed = 0.3) {
-        let f = new Vector3();
-        f.set(this.center);
-        f.sub(this.eye);
-        f.normalize();
-        f.mul(speed);
-        this.eye.add(f);
-        this.center.add(f);
+        var fx = this.center.elements[0] - this.eye.elements[0];
+        var fz = this.center.elements[2] - this.eye.elements[2];
+        var len = Math.sqrt(fx * fx + fz * fz);
+        if (len === 0) return;
+        var dx = (fx / len) * speed;
+        var dz = (fz / len) * speed;
+        this.eye.elements[0]    += dx;
+        this.eye.elements[2]    += dz;
+        this.center.elements[0] += dx;
+        this.center.elements[2] += dz;
         this.updateView();
     }
 
     moveBackwards(speed = 0.3) {
-        let b = new Vector3();
-        b.set(this.eye);
-        b.sub(this.center);
-        b.normalize();
-        b.mul(speed);
-        this.eye.add(b);
-        this.center.add(b);
-        this.updateView();
+        this.moveForward(-speed);
     }
 
+    // Strafe left/right in the XZ plane
+    // Left vector = up x forward, projected onto XZ = (fz, -fx)
     moveLeft(speed = 0.3) {
-        let f = new Vector3();
-        f.set(this.center);
-        f.sub(this.eye);
-
-        let s = Vector3.cross(this.up, f);
-        s.normalize();
-        s.mul(speed);
-        this.eye.add(s);
-        this.center.add(s);
+        var fx = this.center.elements[0] - this.eye.elements[0];
+        var fz = this.center.elements[2] - this.eye.elements[2];
+        var len = Math.sqrt(fx * fx + fz * fz);
+        if (len === 0) return;
+        var dx = (fz / len) * speed;
+        var dz = (-fx / len) * speed;
+        this.eye.elements[0]    += dx;
+        this.eye.elements[2]    += dz;
+        this.center.elements[0] += dx;
+        this.center.elements[2] += dz;
         this.updateView();
     }
 
     moveRight(speed = 0.3) {
-        let f = new Vector3();
-        f.set(this.center);
-        f.sub(this.eye);
-
-        let s = Vector3.cross(f, this.up);
-        s.normalize();
-        s.mul(speed);
-        this.eye.add(s);
-        this.center.add(s);
-        this.updateView();
+        this.moveLeft(-speed);
     }
 
+    // Rotate camera horizontally using direct trig - no matrix library needed.
+    // This avoids floating-point Y-drift that causes the camera to tilt skyward.
     panLeft(alpha = 5) {
-        let f = new Vector3();
-        f.set(this.center);
-        f.sub(this.eye);
+        var rad = alpha * Math.PI / 180;
+        var cos = Math.cos(rad);
+        var sin = Math.sin(rad);
 
-        let rotMatrix = new Matrix4();
-        rotMatrix.setRotate(alpha, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
-        let fPrime = rotMatrix.multiplyVector3(f);
+        // Forward direction (XZ only)
+        var fx = this.center.elements[0] - this.eye.elements[0];
+        var fz = this.center.elements[2] - this.eye.elements[2];
 
-        this.center.set(this.eye);
-        this.center.add(fPrime);
+        // Rotate around Y axis
+        var newFx =  fx * cos + fz * sin;
+        var newFz = -fx * sin + fz * cos;
+
+        // Place center relative to eye, forcing Y to stay level
+        this.center.elements[0] = this.eye.elements[0] + newFx;
+        this.center.elements[1] = this.eye.elements[1];   // hard-lock Y = no sky drift
+        this.center.elements[2] = this.eye.elements[2] + newFz;
+
         this.updateView();
     }
 
