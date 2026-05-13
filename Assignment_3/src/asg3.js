@@ -160,10 +160,8 @@ function animate() {
     gl.uniformMatrix4fv(gl.getUniformLocation(gl.program, "u_viewMatrix"),       false, camera.viewMatrix.elements);
     gl.uniformMatrix4fv(gl.getUniformLocation(gl.program, "u_projectionMatrix"), false, camera.projectionMatrix.elements);
 
-    // Sky always uses solid blue (texWeight = 0 means ignore texture entirely)
     drawMesh(skyBuffer,    skyVertexCount,    0.0,  0.20, 0.50, 0.90, 1.0);
 
-    // Ground and walls: show textured once image is ready, fallback colors before that
     var tw = textureReady ? 1.0 : 0.0;
     drawMesh(groundBuffer, groundVertexCount, tw,   0.35, 0.25, 0.10, 1.0);
     drawMesh(wallBuffer,   wallVertexCount,   tw,   0.55, 0.40, 0.30, 1.0);
@@ -174,7 +172,6 @@ function animate() {
 function loadTexture() {
     var texture = gl.createTexture();
     var img = new Image();
-
     img.onload = function () {
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -187,9 +184,10 @@ function loadTexture() {
         console.log("Texture loaded OK.");
     };
     img.onerror = function () {
-        console.log("Could not load textures/block.jpg - world will use fallback colors.");
+        console.log("Texture load failed - using fallback colors.");
     };
-    img.src = "textures/block.jpg";
+    // Path goes up one level because this file lives in src/
+    img.src = "../textures/block.jpg";
 }
 
 function rebuildWalls() {
@@ -232,20 +230,22 @@ function keydown(ev) {
 }
 
 function main() {
+    console.log("main() called");
     var canvas = document.getElementById("webgl");
 
-    gl = getWebGLContext(canvas);
-    if (!gl) { console.log("Failed to get WebGL context."); return; }
+    gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    if (!gl) { console.log("ERROR: WebGL not supported"); return; }
+    console.log("WebGL context OK");
 
     gl.enable(gl.DEPTH_TEST);
     gl.clearColor(0.2, 0.5, 0.9, 1.0);
 
     if (!initShaders(gl, VERTEX_SHADER, FRAGMENT_SHADER)) {
-        console.log("Failed to compile shaders. Check browser console for GLSL errors.");
+        console.log("ERROR: Shader compile failed");
         return;
     }
+    console.log("Shaders OK");
 
-    // Build all geometry synchronously RIGHT NOW - no waiting for texture
     var wallData   = buildWallMesh();
     wallVertexCount   = wallData.length / 8;
     wallBuffer        = createBuffer(wallData);
@@ -257,6 +257,8 @@ function main() {
     var skyData    = buildSkyMesh();
     skyVertexCount    = skyData.length / 8;
     skyBuffer         = createBuffer(skyData);
+
+    console.log("Meshes built. Wall vertices:", wallVertexCount);
 
     camera = new Camera(canvas.width / canvas.height, 0.1, 1000);
 
@@ -273,9 +275,7 @@ function main() {
     canvas.onclick       = function ()   { addBlockInFront(); };
     canvas.oncontextmenu = function (ev) { ev.preventDefault(); deleteBlockInFront(); };
 
-    // Start rendering immediately - world is visible before texture even loads
     animate();
-
-    // Texture loads in the background; world switches to textured once ready
     loadTexture();
+    console.log("Running.");
 }

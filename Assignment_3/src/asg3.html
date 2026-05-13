@@ -4,21 +4,22 @@
     <meta charset="utf-8" />
     <title>ASG 3</title>
 
-    <script src="asg3.js"></script>
+    <!-- Paths go up one level (../) because this HTML lives inside src/ -->
+    <script src="../lib/cuon-matrix-cse160.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/webgl-utils.js"></script>
+
+    <script src="../geometry/geometry.js"></script>
+    <script src="../geometry/triangle.js"></script>
+    <script src="../geometry/cube.js"></script>
+    <script src="../geometry/square.js"></script>
+
     <script src="camera.js"></script>
-
-    <script src="geometry/geometry.js"></script>
-    <script src="geometry/triangle.js"></script>
-    <script src="geometry/cube.js"></script>
-    <script src="geometry/square.js"></script>
-
-    <script src="lib/cuon-matrix-cse160.js"></script>
-    <script src="lib/cuon-utils.js"></script>
-    <script src="lib/webgl-debug.js"></script>
-    <script src="lib/webgl-utils.js"></script>
+    <script src="asg3.js"></script>
 
     <style>
-      body { margin: 0; background: #111; color: #eee; font-family: sans-serif; }
+      body   { margin: 0; background: #111; color: #eee; font-family: sans-serif; }
       canvas { display: block; }
       #controls { padding: 8px 12px; font-size: 14px; }
     </style>
