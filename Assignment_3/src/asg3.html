@@ -70,7 +70,11 @@
     <div id="gameOverlay">
       <div id="overlayTitle"></div>
       <div id="overlayMsg"></div>
-      <button id="overlayBtn" onclick="restartGame()">Play Again (or press R)</button>
+      <button id="overlayBtn"
+              onclick="restartGame()"
+              onkeydown="if(event.key==='r'||event.key==='R'){restartGame();}">
+        Play Again (or press R)
+      </button>
     </div>
 
     <div id="controls">

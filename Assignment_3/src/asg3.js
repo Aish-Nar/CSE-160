@@ -236,6 +236,9 @@ function endGame(result) {
         document.getElementById('overlayTitle').textContent = 'CAUGHT!';
         document.getElementById('overlayMsg').textContent   = 'The dungeon golem grabbed you from behind...';
     }
+    // Focus the button so the browser window is guaranteed to have keyboard focus
+    // This means pressing R immediately restarts without having to click first
+    setTimeout(function() { document.getElementById('overlayBtn').focus(); }, 50);
 }
 
 function restartGame() {
@@ -363,7 +366,7 @@ function main() {
     g_goalBuf  = createBuffer(applyTransform(g_cubeTmpl, g_goalX,  0.5, g_goalZ,  0.5, 0.5, 0.5));
 
     camera = new Camera(canvas.width/canvas.height, 0.1, 1000);
-    document.addEventListener('keydown', keydown);
+    window.addEventListener('keydown', keydown);
     setupMouseControls(canvas);
     animate();
     loadTexture();
