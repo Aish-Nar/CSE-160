@@ -78,6 +78,12 @@ var wallBuffer, groundBuffer, skyBuffer;
 var wallVertexCount, groundVertexCount, skyVertexCount;
 var textureReady = false;
 
+// Track whether a left-button press became a drag so we don't
+// accidentally add a block at the end of a mouse-look movement.
+var g_mouseDownX = 0;
+var g_mouseDownY = 0;
+var g_wasDragging = false;
+
 function applyTransform(src, tx, ty, tz, sx, sy, sz) {
     var out = new Float32Array(src.length);
     for (var i = 0; i < src.length; i += 8) {
@@ -186,7 +192,6 @@ function loadTexture() {
     img.onerror = function () {
         console.log("Texture load failed - using fallback colors.");
     };
-    // Path goes up one level because this file lives in src/
     img.src = "../textures/block.jpg";
 }
 
@@ -194,48 +199,102 @@ function rebuildWalls() {
     var data = buildWallMesh();
     wallVertexCount = data.length / 8;
     gl.bindBuffer(gl.ARRAY_BUFFER, wallBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
 }
 
+// Returns the map cell directly in front of the camera (2 units ahead)
 function getBlockInFront() {
-    var f = new Vector3();
-    f.set(camera.center);
-    f.sub(camera.eye);
-    f.normalize();
-    var bx = Math.round(camera.eye.elements[0] + f.elements[0] * 1.5);
-    var bz = Math.round(camera.eye.elements[2] + f.elements[2] * 1.5);
-    if (bx >= 0 && bx < 32 && bz >= 0 && bz < 32) return { x: bx, z: bz };
+    var fx = camera.center.elements[0] - camera.eye.elements[0];
+    var fz = camera.center.elements[2] - camera.eye.elements[2];
+    var len = Math.sqrt(fx * fx + fz * fz);
+    if (len === 0) return null;
+    fx /= len;
+    fz /= len;
+
+    var bx = Math.round(camera.eye.elements[0] + fx * 2);
+    var bz = Math.round(camera.eye.elements[2] + fz * 2);
+
+    if (bx >= 0 && bx < 32 && bz >= 0 && bz < 32) {
+        return { x: bx, z: bz };
+    }
     return null;
 }
 
 function addBlockInFront() {
     var b = getBlockInFront();
-    if (b && g_map[b.z][b.x] < 4) { g_map[b.z][b.x]++; rebuildWalls(); }
+    if (b && g_map[b.z][b.x] < 4) {
+        g_map[b.z][b.x]++;
+        rebuildWalls();
+        console.log("Added block at x=" + b.x + " z=" + b.z + " height=" + g_map[b.z][b.x]);
+    }
 }
 
 function deleteBlockInFront() {
     var b = getBlockInFront();
-    if (b && g_map[b.z][b.x] > 0) { g_map[b.z][b.x]--; rebuildWalls(); }
+    if (b && g_map[b.z][b.x] > 0) {
+        g_map[b.z][b.x]--;
+        rebuildWalls();
+        console.log("Deleted block at x=" + b.x + " z=" + b.z + " height=" + g_map[b.z][b.x]);
+    }
 }
 
 function keydown(ev) {
     switch (ev.key) {
-        case 'w': case 'W': camera.moveForward();   break;
-        case 's': case 'S': camera.moveBackwards(); break;
-        case 'a': case 'A': camera.moveLeft();      break;
-        case 'd': case 'D': camera.moveRight();     break;
-        case 'q': case 'Q': camera.panLeft();       break;
-        case 'e': case 'E': camera.panRight();      break;
+        case 'w': case 'W': camera.moveForward();    break;
+        case 's': case 'S': camera.moveBackwards();  break;
+        case 'a': case 'A': camera.moveLeft();       break;
+        case 'd': case 'D': camera.moveRight();      break;
+        case 'q': case 'Q': camera.panLeft();        break;
+        case 'e': case 'E': camera.panRight();       break;
+        // F = add block in front, G = delete block in front
+        case 'f': case 'F': addBlockInFront();       break;
+        case 'g': case 'G': deleteBlockInFront();    break;
     }
 }
 
+function setupMouseControls(canvas) {
+    // Record where the mouse went down so we can tell click from drag
+    canvas.onmousedown = function (ev) {
+        g_mouseDownX  = ev.clientX;
+        g_mouseDownY  = ev.clientY;
+        g_wasDragging = false;
+    };
+
+    canvas.onmousemove = function (ev) {
+        if (ev.buttons !== 1) return;   // only when left button is held
+
+        // If the mouse has moved more than 4px it's a drag, not a click
+        var movedX = Math.abs(ev.clientX - g_mouseDownX);
+        var movedY = Math.abs(ev.clientY - g_mouseDownY);
+        if (movedX + movedY > 4) g_wasDragging = true;
+
+        if (g_wasDragging) {
+            var dx = ev.movementX;
+            if      (dx > 0) camera.panRight(dx * 0.3);
+            else if (dx < 0) camera.panLeft(-dx * 0.3);
+        }
+    };
+
+    // Left click: only add a block when it was a real click, not the end of a drag
+    canvas.onclick = function () {
+        if (!g_wasDragging) {
+            addBlockInFront();
+        }
+        g_wasDragging = false;
+    };
+
+    // Right click: delete block in front
+    canvas.oncontextmenu = function (ev) {
+        ev.preventDefault();
+        deleteBlockInFront();
+    };
+}
+
 function main() {
-    console.log("main() called");
     var canvas = document.getElementById("webgl");
 
     gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
     if (!gl) { console.log("ERROR: WebGL not supported"); return; }
-    console.log("WebGL context OK");
 
     gl.enable(gl.DEPTH_TEST);
     gl.clearColor(0.2, 0.5, 0.9, 1.0);
@@ -244,7 +303,6 @@ function main() {
         console.log("ERROR: Shader compile failed");
         return;
     }
-    console.log("Shaders OK");
 
     var wallData   = buildWallMesh();
     wallVertexCount   = wallData.length / 8;
@@ -258,24 +316,11 @@ function main() {
     skyVertexCount    = skyData.length / 8;
     skyBuffer         = createBuffer(skyData);
 
-    console.log("Meshes built. Wall vertices:", wallVertexCount);
-
     camera = new Camera(canvas.width / canvas.height, 0.1, 1000);
 
     document.onkeydown = keydown;
-
-    canvas.onmousemove = function (ev) {
-        if (ev.buttons === 1) {
-            var dx = ev.movementX;
-            if      (dx > 0) camera.panRight(dx * 0.3);
-            else if (dx < 0) camera.panLeft(-dx * 0.3);
-        }
-    };
-
-    canvas.onclick       = function ()   { addBlockInFront(); };
-    canvas.oncontextmenu = function (ev) { ev.preventDefault(); deleteBlockInFront(); };
+    setupMouseControls(canvas);
 
     animate();
     loadTexture();
-    console.log("Running.");
 }
