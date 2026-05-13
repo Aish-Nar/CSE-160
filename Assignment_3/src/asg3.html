@@ -23,45 +23,37 @@
       canvas { display: block; }
 
       #hud {
-        position: fixed;
-        top: 10px; left: 10px;
-        font-size: 15px;
-        text-shadow: 1px 1px 3px black;
-        pointer-events: none;
-        line-height: 1.7;
+        position: fixed; top: 10px; left: 10px;
+        font-size: 15px; text-shadow: 1px 1px 3px black;
+        pointer-events: none; line-height: 1.8;
       }
 
       #crosshair {
-        position: fixed;
-        top: 50%; left: 50%;
+        position: fixed; top: 50%; left: 50%;
         transform: translate(-50%, -50%);
-        color: white;
-        font-size: 22px;
-        pointer-events: none;
-        text-shadow: 0 0 4px black;
+        color: white; font-size: 24px;
+        pointer-events: none; text-shadow: 0 0 4px black;
       }
 
       #gameOverlay {
         display: none;
-        position: fixed;
-        top: 50%; left: 50%;
+        position: fixed; top: 50%; left: 50%;
         transform: translate(-50%, -50%);
-        background: rgba(0,0,0,0.88);
-        padding: 32px 48px;
-        text-align: center;
-        border: 3px solid gold;
-        border-radius: 12px;
-        z-index: 100;
+        background: rgba(0,0,0,0.9);
+        padding: 36px 52px; text-align: center;
+        border: 3px solid gold; border-radius: 14px; z-index: 100;
       }
-      #overlayTitle { font-size: 30px; font-weight: bold; margin-bottom: 10px; }
-      #overlayMsg   { font-size: 16px; margin-bottom: 16px; color: #ccc; }
-      #overlayHint  { font-size: 13px; color: #888; }
+      #overlayTitle { font-size: 32px; font-weight: bold; margin-bottom: 12px; }
+      #overlayMsg   { font-size: 16px; margin-bottom: 20px; color: #ccc; }
+      #overlayBtn {
+        font-size: 16px; padding: 10px 28px;
+        background: #333; color: white;
+        border: 2px solid gold; border-radius: 8px;
+        cursor: pointer;
+      }
+      #overlayBtn:hover { background: #555; }
 
-      #controls {
-        padding: 8px 12px;
-        font-size: 13px;
-        border-top: 1px solid #333;
-      }
+      #controls { padding: 8px 12px; font-size: 13px; border-top: 1px solid #333; }
     </style>
   </head>
 
@@ -72,17 +64,17 @@
 
     <div id="hud">
       <div id="hudGolem">🔴 Golem: far away</div>
-      <div id="hudGoal">🟡 Find the golden treasure!</div>
+      <div id="hudGoal" >🟡 Find the golden treasure!</div>
     </div>
 
     <div id="gameOverlay">
       <div id="overlayTitle"></div>
       <div id="overlayMsg"></div>
-      <div id="overlayHint">Press R to play again</div>
+      <button id="overlayBtn" onclick="restartGame()">Play Again (or press R)</button>
     </div>
 
     <div id="controls">
-      <b>The Dungeon Escape</b> &mdash; Find the gold treasure before the red golem catches you! &nbsp;|&nbsp;
+      <b>The Dungeon Escape</b> &mdash; Find the gold cube before the red golem catches you! &nbsp;|&nbsp;
       W/S: forward/back &nbsp;|&nbsp;
       A/D: strafe left/right &nbsp;|&nbsp;
       Q/E: rotate left/right &nbsp;|&nbsp;
